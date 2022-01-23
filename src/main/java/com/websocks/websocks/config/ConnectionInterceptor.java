@@ -1,4 +1,4 @@
-package com.websocks.websocks;
+package com.websocks.websocks.config;
 
 import java.util.Map;
 
@@ -49,6 +49,5 @@ public class ConnectionInterceptor implements ChannelInterceptor {
         }
 
         return message;
-    }
-    
+    }    
 }

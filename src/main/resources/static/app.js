@@ -10,16 +10,28 @@ function connect() {
             showClientChats(greeting.body);
         });
         stompClient.subscribe('/exits', function(disconnectedClients) {
-            showServerMessageOnChat(disconnectedClients.body);
+            updateUI(disconnectedClients);
         });
         stompClient.subscribe('/connections', function(newConnection) {
-            showServerMessageOnChat(newConnection.body);
+            updateUI(newConnection);
         });
+        stompClient.subscribe('/liveUsers', function(update) {
+            let object = JSON.parse(update.body);
+            let count = object.count;
+            let users = object.users;
+            $("#onlineCount").html(count);
+            console.log(users);
+        })
         safetyHandlerOn();
     }, function (error) {
         if(error.headers)
             alert(error.headers.message.split('?')[1]);
     });
+}
+
+function updateUI(raw) {
+    let object = JSON.parse(raw.body);
+    showServerMessageOnChat(object.message);
 }
 
 function showClientChats(message) {
@@ -65,6 +77,7 @@ function safetyHandlerOff() {
     $("#send").prop("disabled", true);
     $("#username").keyup(function (e) { _keyupHandler(e); });
     $("#disconnect").prop("disabled", true);
+    $("#onlineCount").html('');
 }
 
 function _keyupHandler(e) {

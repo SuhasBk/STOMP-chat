@@ -1,10 +1,15 @@
-package com.websocks.websocks;
+package com.websocks.websocks.config;
 
+import java.util.ArrayList;
 import java.util.Map;
+
+import com.websocks.websocks.model.StompMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
@@ -19,19 +24,30 @@ public class ConnectionListener {
     }
 
     @EventListener
+    public void beforeConnect(SessionConnectEvent event) {
+        System.out.println("\nHEY HEY\n");
+    }
+
+    @EventListener
     public void onConnect(SessionConnectedEvent event) {
         String sessionId = event.getMessage().getHeaders().get("simpSessionId").toString();
         String clientId = sessionManager.get(sessionId);
         String username = clientId.substring(clientId.indexOf("[")+1, clientId.indexOf("]"));
-        template.convertAndSend("/connections", "New user - " + username + " has joined the chat! 🙌");
+        System.out.println("\nWOAH WOAH\n");
+        template.convertAndSend("/connections", new StompMessage(null, "New user - " + username + " has joined the chat! 🙌", sessionManager.size(), null));
     }
 
     @EventListener
     public void onDisconnect(SessionDisconnectEvent event) {
         String sessionId = event.getSessionId();
         if(sessionId != null) {
-            template.convertAndSend("/exits", sessionManager.get(sessionId).split("=")[1] + " has left the chat 👋");
+            template.convertAndSend("/exits", new StompMessage(null, sessionManager.get(sessionId).split("=")[1] + " has left the chat 👋", sessionManager.size(), null));
             sessionManager.remove(sessionId);
         }
+    }
+
+    @Scheduled(fixedRate = 5000, initialDelay = 1000)
+    public void getLiveConnections() {
+        template.convertAndSend("/liveUsers", new StompMessage(null, null, sessionManager.size(), new ArrayList<>(sessionManager.values())));
     }
 }
