@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StompChat</title>
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <script src="webjars/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/app.js"></script>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/main.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Welcome to Stomp Chat</h1>
+    <div class="container">
+        <p id="chats"></p>
+        <div>
+            <form>
+                <input id="username"  type="text" placeholder="Enter a username">
+                <button class="btn btn-outline-success" id="connect" disabled>Connect ✅</button>
+                <button class="btn btn-outline-danger" id="disconnect" disabled>Disconnect ❌</button>
+                <button class="btn btn-outline-info" id="clear">Clear 🗑</button><br><br>
+                <input id="msgText" type="text" placeholder="Enter your message here ✍️"/><br><br>
+                <button class="btn btn-outline-success" id="send" disabled>Send ➡️</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
