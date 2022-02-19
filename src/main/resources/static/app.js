@@ -6,22 +6,31 @@ function connect() {
     stompClient.connect({ 'client-id': $("#username").val() }, function (frame) {
         console.log('Connected: ' + frame);
         showServerMessageOnChat("Yay! You are now connected to the chat stream! Have fun!");
+
         stompClient.subscribe('/chat', function (greeting) {
             showClientChats(greeting.body);
         });
+
+        stompClient.subscribe('/chatuploads', function(filename) {
+            showClientFileUploads(filename.body);
+        });
+
         stompClient.subscribe('/exits', function(disconnectedClients) {
             updateUI(disconnectedClients);
         });
+
         stompClient.subscribe('/connections', function(newConnection) {
             updateUI(newConnection);
         });
+
         stompClient.subscribe('/liveUsers', function(update) {
             let object = JSON.parse(update.body);
             let count = object.count;
             let users = object.users;
             $("#onlineCount").html(count);
             console.log(users);
-        })
+        });
+
         safetyHandlerOn();
     }, function (error) {
         if(error.headers)
@@ -36,6 +45,12 @@ function updateUI(raw) {
 
 function showClientChats(message) {
     $("#chats").append("<tr><td class='msg'>" + message + "</td></tr>");
+    scrollChat();
+}
+
+function showClientFileUploads(response) {
+    response = JSON.parse(response);
+    $("#chats").append(`<tr><td class='msg'>${response.userId}: FILE: <a target='_blank' href='/files/${response.filename}'>${response.filename}</a></td></tr>`);
     scrollChat();
 }
 
@@ -70,6 +85,7 @@ function safetyHandlerOn() {
     $("#send").prop("disabled", false);
     $("#username").off("keyup");
     $("#disconnect").prop("disabled", false);
+    $("#upload-file").prop("disabled", false);
 }
 
 function safetyHandlerOff() {
@@ -78,6 +94,7 @@ function safetyHandlerOff() {
     $("#username").keyup(function (e) { _keyupHandler(e); });
     $("#disconnect").prop("disabled", true);
     $("#onlineCount").html('');
+    $("#upload-file").prop("disabled", true);
 }
 
 function _keyupHandler(e) {
@@ -99,6 +116,11 @@ function clearScreen() {
     $("#chats").html('');
 }
 
+function showName() {
+    let fileName = $("#file")[0].files[0].name;
+    $('#file-selected').html(fileName);
+}
+
 $(function () {
     $("form").on('submit', function (e) {
         e.preventDefault();
@@ -111,4 +133,21 @@ $(function () {
     
     $("#username").keyup(function(e) { _keyupHandler(e); });
     $("#msgText").keyup(function(e) { sendOnEnter(e) });
+
+    $("#upload-file").on("click", (e) => {
+        let file = $("#file")[0].files[0];
+        if(file) {
+            let formData = new FormData();
+            formData.append("file", file);
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            }).then(resp => {
+                console.log(resp);
+                stompClient.send("/app/fileMessage", {}, JSON.stringify({ 'id': $("#username").val(), 'filename': file.name }));
+            });
+        } else {
+            alert('Choose a file first!');
+        }
+    });
 });

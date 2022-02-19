@@ -1,2 +1,12 @@
 server:
-    port: ${PORT:8080}
+    port: ${PORT:8000}
+
+spring:
+  http:
+    multipart:
+      enabled: false
+
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 25MB

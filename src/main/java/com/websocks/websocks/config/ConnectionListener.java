@@ -24,16 +24,10 @@ public class ConnectionListener {
     }
 
     @EventListener
-    public void beforeConnect(SessionConnectEvent event) {
-        System.out.println("\nHEY HEY\n");
-    }
-
-    @EventListener
     public void onConnect(SessionConnectedEvent event) {
         String sessionId = event.getMessage().getHeaders().get("simpSessionId").toString();
         String clientId = sessionManager.get(sessionId);
         String username = clientId.substring(clientId.indexOf("[")+1, clientId.indexOf("]"));
-        System.out.println("\nWOAH WOAH\n");
         template.convertAndSend("/connections", new StompMessage(null, "New user - " + username + " has joined the chat! 🙌", sessionManager.size(), null));
     }
 

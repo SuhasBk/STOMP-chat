@@ -8,6 +8,7 @@ public class StompMessage {
     private String id;
     private Integer count;
     private List<String> users;
+    private String filename;
 
     public StompMessage(String id, String message, Integer count, List<String> users) {
         this.id = id;
@@ -40,5 +41,12 @@ public class StompMessage {
     public void setUsers(List<String> users) {
         this.users = users;
     }
-    
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
 }

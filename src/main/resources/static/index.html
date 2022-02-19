@@ -19,14 +19,22 @@
     <div class="container">
         <p id="chats"></p>
         <div>
-            <form>
+            <div class="form">
                 <input id="username"  type="text" placeholder="Enter a username">
                 <button class="btn btn-outline-success" id="connect" disabled>Connect ✅</button>
                 <button class="btn btn-outline-danger" id="disconnect" disabled>Disconnect ❌</button>
                 <button class="btn btn-outline-info" id="clear">Clear 🗑</button><br><br>
-                <input id="msgText" type="text" placeholder="Enter your message here ✍️"/><br><br>
-                <button class="btn btn-outline-success" id="send" disabled>Send ➡️</button>
-            </form>
+                <div>
+                    <input id="msgText" type="text" placeholder="Enter your message here ✍️"/>
+                    <button class="btn btn-outline-success" id="send" disabled>Send ➡️</button>
+                </div>
+                <label class="custom-file-upload">
+                    <input type="file" name="file" id="file" onchange="showName()"/>
+                    Choose a file.
+                </label>
+                <span id="file-selected"></span>
+                <button class="btn btn-outline-success" id="upload-file" disabled>Upload 📁</button>
+            </div>
         </div>
     </div>
 </body>
