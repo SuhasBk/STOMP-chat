@@ -145,6 +145,12 @@ $(function () {
             }).then(resp => {
                 console.log(resp);
                 stompClient.send("/app/fileMessage", {}, JSON.stringify({ 'id': $("#username").val(), 'filename': file.name }));
+            }).catch(err => {
+                if(err.message.includes("NetworkError")) {
+                    alert("File too large! (>25MB) 😢")
+                } else {
+                    alert(err.message);
+                }
             });
         } else {
             alert('Choose a file first!');

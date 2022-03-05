@@ -22,7 +22,6 @@ public class WebsocksApplication implements CommandLineRunner {
 	FileService fileService;
 
 	public static void main(String[] args) {
-
 		SpringApplication.run(WebsocksApplication.class, args);
 	}
 
