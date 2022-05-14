@@ -17,9 +17,9 @@ public class ConnectionInterceptor implements ChannelInterceptor {
 
     @Autowired
     private Map<String, String> sessionManager;
-    
-    private Integer MAX_CHANNEL_SIZE = 5;
-    private Logger logger  = LoggerFactory.getLogger(ConnectionInterceptor.class);
+
+    private final Integer MAX_CHANNEL_SIZE = 50;
+    private final Logger logger  = LoggerFactory.getLogger(ConnectionInterceptor.class);
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {

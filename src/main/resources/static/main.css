@@ -19,6 +19,7 @@ p {
     overflow-y: scroll;
     background-color: grey;
     padding: 10px;
+    overflow-wrap: anywhere
 }
 
 .container {
@@ -59,6 +60,7 @@ a {
 input[type="file"] {
     display: none;
 }
+
 .custom-file-upload {
     display: inline-block;
     padding: 6px 12px;

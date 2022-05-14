@@ -5,6 +5,7 @@ import com.websocks.websocks.model.StompMessage;
 import com.websocks.websocks.services.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +32,7 @@ public class SocketController {
     @MessageMapping("/message")
     @SendTo("/chat")
     public String getMessage(StompMessage msg) throws Exception {
-        return msg.getId() + ": " + msg.getMessage();
+        return new SimpleDateFormat("HH:mm:ss").format(new Date()) + " " + msg.getId() + ": " + msg.getMessage();
     }
 
     @MessageMapping("/fileMessage")

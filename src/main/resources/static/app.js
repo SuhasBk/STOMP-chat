@@ -1,7 +1,7 @@
 var stompClient = null;
 
 function connect() {
-    var socket = new SockJS('/websocket');
+    var socket = new SockJS('/websocks');
     stompClient = Stomp.over(socket);
     stompClient.connect({ 'client-id': $("#username").val() }, function (frame) {
         console.log('Connected: ' + frame);
@@ -32,6 +32,7 @@ function connect() {
         });
 
         safetyHandlerOn();
+        $("#msgText").focus()
     }, function (error) {
         if(error.headers)
             alert(error.headers.message.split('?')[1]);
@@ -97,18 +98,19 @@ function safetyHandlerOff() {
     $("#upload-file").prop("disabled", true);
 }
 
-function _keyupHandler(e) {
-    if (e.target.value.length >= 3) {
-        $("#connect").prop("disabled", false);
-    } else {
-        $("#connect, #send").prop("disabled", true);
+function executeOnEnter(e, callback) {
+    e.preventDefault();
+    if(e.keyCode == 13) {
+        callback();
     }
 }
 
-function sendOnEnter(e) {
-    e.preventDefault();
-    if (e.keyCode == 13) {
-        sendMessage();
+function _keyupHandler(e) {
+    if (e.target.value.length >= 3) {
+        $("#connect").prop("disabled", false);
+        executeOnEnter(e, connect);
+    } else {
+        $("#connect, #send").prop("disabled", true);
     }
 }
 
@@ -132,7 +134,7 @@ $(function () {
     $("#clear").click(function() { clearScreen(); });
     
     $("#username").keyup(function(e) { _keyupHandler(e); });
-    $("#msgText").keyup(function(e) { sendOnEnter(e) });
+    $("#msgText").keyup(function(e) { executeOnEnter(e, sendMessage) });
 
     $("#upload-file").on("click", (e) => {
         let file = $("#file")[0].files[0];
