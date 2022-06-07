@@ -3,15 +3,14 @@ package com.websocks.websocks.config;
 import java.util.ArrayList;
 import java.util.Map;
 
-import com.websocks.websocks.model.StompMessage;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+
+import com.websocks.websocks.model.StompMessage;
 
 public class ConnectionListener {
     private SimpMessagingTemplate template;

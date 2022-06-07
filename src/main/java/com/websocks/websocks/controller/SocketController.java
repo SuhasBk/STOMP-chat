@@ -1,11 +1,12 @@
 package com.websocks.websocks.controller;
 
-import com.websocks.websocks.model.StompMessage;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.websocks.websocks.services.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -17,11 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import com.websocks.websocks.model.StompMessage;
+import com.websocks.websocks.services.FileService;
 
 @Controller
 public class SocketController {
@@ -46,7 +44,6 @@ public class SocketController {
 
     @PostMapping(path="/upload")
     public String upload(@RequestParam("file") MultipartFile file) {
-        System.out.println("file name is: "+file.getOriginalFilename());
         fileService.save(file);
         return "redirect:/";
     }

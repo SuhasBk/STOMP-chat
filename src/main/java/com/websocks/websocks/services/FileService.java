@@ -17,8 +17,8 @@ import java.nio.file.ReadOnlyFileSystemException;
 @Service
 public class FileService {
 
-    private final Path root = Paths.get("uploads");
-    private Logger logger = LoggerFactory.getLogger(FileService.class);
+    private static final Path root = Paths.get("uploads");
+    private static final Logger logger = LoggerFactory.getLogger(FileService.class);
 
     public void init() {
         try {
