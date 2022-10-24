@@ -1,6 +1,7 @@
 package com.websocks.websocks.config;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +25,11 @@ public class ConnectionInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         MessageHeaders headers = message.getHeaders();
-        String messageType = headers.get("simpMessageType").toString();
-        String sessionId = headers.get("simpSessionId").toString();
+        String messageType = Optional.ofNullable(headers.get("simpMessageType")).orElse("").toString();
+        String sessionId = Optional.ofNullable(headers.get("simpSessionId")).orElse("").toString();
 
         if(messageType.equals("CONNECT")) {
-            String username = headers.get("nativeHeaders").toString().split(",")[0];
+            String username = Optional.ofNullable(headers.get("nativeHeaders")).orElse("").toString().split(",")[0];
 
             if(sessionManager.size() >= MAX_CHANNEL_SIZE) {
                 logger.error("NEW CLIENT FAILED TO REGISTER: {} max limit reached!", username);

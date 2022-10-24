@@ -2,6 +2,7 @@ package com.websocks.websocks.config;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -24,7 +25,7 @@ public class ConnectionListener {
 
     @EventListener
     public void onConnect(SessionConnectedEvent event) {
-        String sessionId = event.getMessage().getHeaders().get("simpSessionId").toString();
+        String sessionId = Optional.ofNullable(event.getMessage().getHeaders().get("simpSessionId")).orElse("").toString();
         String clientId = sessionManager.get(sessionId);
         String username = clientId.substring(clientId.indexOf("[")+1, clientId.indexOf("]"));
         template.convertAndSend("/connections", new StompMessage(null, "New user - " + username + " has joined the chat! 🙌", sessionManager.size(), null));
