@@ -1,9 +1,7 @@
 package com.websocks.websocks.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -20,11 +18,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Autowired
     ConnectionInterceptor connectionInterceptor;
 
-    @Bean
-    public ConnectionListener disconnectListener(SimpMessagingTemplate template) {
-        return new ConnectionListener(template);
-    }
-
+    /* root endpoint mapping for websocket communication */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/websocks")
@@ -32,19 +26,22 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .withSockJS();
     }
 
+    /* 'chat' and 'chatuploads' endpoints are used by clients. remaining endpoints are used by server to update the client.*/
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/chat", "/chatuploads", "/connections", "/exits", "/liveUsers");
         config.setApplicationDestinationPrefixes("/app");
+        config.enableSimpleBroker("/chat", "/chatuploads", "/connections", "/exits", "/liveUsers");
     }
 
+    /* configure interceptor to handle user sessions */
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(connectionInterceptor);
     }
 
+    /* increase payload limit of STOMP messages*/
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-        registry.setMessageSizeLimit(512*1024);
+        registry.setMessageSizeLimit(1024*1024);
     }
 }

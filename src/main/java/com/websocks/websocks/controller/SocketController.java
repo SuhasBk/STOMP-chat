@@ -42,13 +42,13 @@ public class SocketController {
         return response;
     }
 
-    @PostMapping(path="/upload")
+    @PostMapping("/upload")
     public String upload(@RequestParam("file") MultipartFile file) {
         fileService.save(file);
         return "redirect:/";
     }
 
-    @GetMapping(path="/files/{filename}")
+    @GetMapping("/files/{filename}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         Resource file = fileService.load(filename);
         return ResponseEntity.ok()

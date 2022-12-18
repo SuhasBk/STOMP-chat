@@ -24,11 +24,7 @@ function connect() {
         });
 
         stompClient.subscribe('/liveUsers', function(update) {
-            let object = JSON.parse(update.body);
-            let count = object.count;
-            let users = object.users;
-            $("#onlineCount").html(count);
-            console.log(users);
+            showUserCount(update);
         });
 
         safetyHandlerOn();
@@ -37,6 +33,13 @@ function connect() {
         if(error.headers)
             alert(error.headers.message.split('?')[1]);
     });
+}
+
+function showUserCount(update) {
+    let object = JSON.parse(update.body);
+    let count = object.count;
+    let users = object.users;
+    $("#onlineCount").html(count);
 }
 
 function updateUI(raw) {
@@ -149,7 +152,7 @@ $(function () {
                 stompClient.send("/app/fileMessage", {}, JSON.stringify({ 'id': $("#username").val(), 'filename': file.name }));
             }).catch(err => {
                 if(err.message.includes("NetworkError")) {
-                    alert("File too large! (>25MB) 😢")
+                    alert("File too large! (>50MB) 😢")
                 } else {
                     alert(err.message);
                 }

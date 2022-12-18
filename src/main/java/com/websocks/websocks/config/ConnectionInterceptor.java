@@ -1,52 +1,55 @@
 package com.websocks.websocks.config;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.simp.stomp.StompCommand;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class ConnectionInterceptor implements ChannelInterceptor {
+
+    private static final Integer MAX_CHANNEL_SIZE = 10;
+    private static final String USER_HEADER = "client-id";
 
     @Autowired
     private Map<String, String> sessionManager;
 
-    private final Integer MAX_CHANNEL_SIZE = 50;
-    private final Logger logger  = LoggerFactory.getLogger(ConnectionInterceptor.class);
-
+    /* before accepting connections (preSend), validate session */
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        MessageHeaders headers = message.getHeaders();
-        String messageType = Optional.ofNullable(headers.get("simpMessageType")).orElse("").toString();
-        String sessionId = Optional.ofNullable(headers.get("simpSessionId")).orElse("").toString();
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        String sessionId = Optional.ofNullable(accessor.getHeader(StompHeaderAccessor.SESSION_ID_HEADER)).orElse("").toString();
 
-        if(messageType.equals("CONNECT")) {
-            String username = Optional.ofNullable(headers.get("nativeHeaders")).orElse("").toString().split(",")[0];
+        if(StompCommand.CONNECT.equals(accessor.getCommand())) {
+            String username = Optional.ofNullable(accessor.getNativeHeader(USER_HEADER)).orElse(Collections.emptyList()).get(0);
 
-            if(sessionManager.size() >= MAX_CHANNEL_SIZE) {
-                logger.error("NEW CLIENT FAILED TO REGISTER: {} max limit reached!", username);
+            if(sessionManager.size() > MAX_CHANNEL_SIZE) {
+                log.error("NEW CLIENT FAILED TO REGISTER: {} max limit reached!", username);
                 throw new ResourceAccessException("?Max users limit reached! 🙁?");
             }
 
             if(sessionManager.containsValue(username)) {
-                logger.error("NEW CLIENT FAILED TO REGISTER: {} already exists!", username);
+                log.error("NEW CLIENT FAILED TO REGISTER: {} already exists!", username);
                 throw new ResourceAccessException("?Username already taken! 😅?");
             }
             sessionManager.put(sessionId, username);
-            logger.info("NEW CLIENT REGISTERED SUCCESSFULLY: {} with {}", username, sessionId);
+            log.info("NEW CLIENT REGISTERED SUCCESSFULLY: {} with {}", username, sessionId);
         }
         
-        if(messageType.equals("DISCONNECT") && sessionManager.containsKey(sessionId)) {
+        if(StompCommand.DISCONNECT.equals(accessor.getCommand()) && sessionManager.containsKey(sessionId)) {
             String username = sessionManager.get(sessionId);
-            logger.info("CLIENT DISCONNECTED FROM CHANNEL: {} with {}", sessionId, username);
+            log.info("CLIENT DISCONNECTED FROM CHANNEL: {} with {}", username, sessionId);
         }
 
         return message;
