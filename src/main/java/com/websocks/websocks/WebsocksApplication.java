@@ -1,7 +1,7 @@
 package com.websocks.websocks;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -21,7 +21,7 @@ public class WebsocksApplication implements CommandLineRunner {
 
 	@Bean
 	Map<String, String> getSessionManager() {
-		return new HashMap<>();
+		return new ConcurrentHashMap<>();
 	}
 
 	@Override

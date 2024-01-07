@@ -11,13 +11,18 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import com.websocks.websocks.model.StompMessage;
+import com.websocks.websocks.model.StompMessagePayload;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class ConnectionListener {
+
     @Autowired
     SimpMessagingTemplate template;
     
@@ -25,14 +30,18 @@ public class ConnectionListener {
     private Map<String, String> sessionManager;
 
     @EventListener
-    public void onConnect(SessionConnectEvent event) {
+    public void onConnect(SessionConnectEvent event) throws MissingRequestHeaderException {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-        String username = Optional.ofNullable(accessor.getNativeHeader("client-id")).orElse(Collections.emptyList()).get(0);
-        StompMessage message = StompMessage
+        String username = Optional.ofNullable(accessor.getNativeHeader("client-id"))
+            .orElse(Collections.emptyList())
+            .get(0);
+
+        StompMessagePayload message = StompMessagePayload
                                     .builder()
                                     .message("New user - " + username + " has joined the chat! 🙌")
                                     .count(sessionManager.size())
                                     .build();
+
         template.convertAndSend("/connections", message);
     }
 
@@ -41,23 +50,26 @@ public class ConnectionListener {
         String sessionId = event.getSessionId();
         String user = sessionManager.get(sessionId);
         if(user != null) {
-            StompMessage message = StompMessage
+            StompMessagePayload message = StompMessagePayload
                     .builder()
                     .message(user + " has left the chat 👋")
                     .count(sessionManager.size())
                     .build();
+
             sessionManager.remove(sessionId);
-            template.convertAndSend("/exits", message);
+            template.convertAndSend("/connections", message);
+            log.info("CLIENT DISCONNECTED SUCCESSFULLY: {}", user);
         }
     }
 
     @Scheduled(fixedRate = 5000, initialDelay = 1000)
     public void getLiveConnections() {
-        StompMessage message = StompMessage
+        StompMessagePayload message = StompMessagePayload
                 .builder()
                 .count(sessionManager.size())
                 .users(new ArrayList<>(sessionManager.values()))
                 .build();
+
         template.convertAndSend("/liveUsers", message);
     }
 }

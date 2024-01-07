@@ -44,12 +44,7 @@ public class ConnectionInterceptor implements ChannelInterceptor {
                 throw new ResourceAccessException("?Username already taken! 😅?");
             }
             sessionManager.put(sessionId, username);
-            log.info("NEW CLIENT REGISTERED SUCCESSFULLY: {} with {}", username, sessionId);
-        }
-        
-        if(StompCommand.DISCONNECT.equals(accessor.getCommand()) && sessionManager.containsKey(sessionId)) {
-            String username = sessionManager.get(sessionId);
-            log.info("CLIENT DISCONNECTED FROM CHANNEL: {} with {}", username, sessionId);
+            log.info("NEW CLIENT REGISTERED SUCCESSFULLY: {} with session ID: {}", username, sessionId);
         }
 
         return message;

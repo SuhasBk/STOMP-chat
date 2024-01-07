@@ -1,7 +1,5 @@
 package com.websocks.websocks.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.websocks.websocks.model.StompMessage;
+import com.websocks.websocks.model.StompMessagePayload;
 import com.websocks.websocks.services.FileService;
 
 @Controller
@@ -29,13 +27,15 @@ public class SocketController {
     
     @MessageMapping("/message")
     @SendTo("/chat")
-    public String getMessage(StompMessage msg) throws Exception {
-        return new SimpleDateFormat("HH:mm:ss").format(new Date()) + " " + msg.getId() + ": " + msg.getMessage();
+    public Map<String, Object> getMessage(StompMessagePayload msg) throws Exception {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", msg.getId() + ": " + msg.getMessage());
+        return response;
     }
 
     @MessageMapping("/fileMessage")
     @SendTo("/chatuploads")
-    public Map<String, String> getFileMessage(StompMessage msg) throws Exception {
+    public Map<String, String> getFileMessage(StompMessagePayload msg) throws Exception {
         Map<String, String> response = new HashMap<>();
         response.put("userId", msg.getId());
         response.put("filename", msg.getFilename());

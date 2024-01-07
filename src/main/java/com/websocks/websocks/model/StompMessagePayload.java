@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class StompMessage {
+public class StompMessagePayload {
     private String message;
     private String id;
     private Integer count;

@@ -2,7 +2,9 @@ var stompClient = null;
 
 function connect() {
     var socket = new SockJS('/websocks');
+
     stompClient = Stomp.over(socket);
+
     stompClient.connect({ 'client-id': $("#username").val() }, function (frame) {
         console.log('Connected: ' + frame);
         showServerMessageOnChat("Yay! You are now connected to the chat stream! Have fun!");
@@ -13,10 +15,6 @@ function connect() {
 
         stompClient.subscribe('/chatuploads', function(filename) {
             showClientFileUploads(filename.body);
-        });
-
-        stompClient.subscribe('/exits', function(disconnectedClients) {
-            updateUI(disconnectedClients);
         });
 
         stompClient.subscribe('/connections', function(newConnection) {
@@ -38,7 +36,6 @@ function connect() {
 function showUserCount(update) {
     let object = JSON.parse(update.body);
     let count = object.count;
-    let users = object.users;
     $("#onlineCount").html(count);
 }
 
@@ -47,14 +44,15 @@ function updateUI(raw) {
     showServerMessageOnChat(object.message);
 }
 
-function showClientChats(message) {
-    $("#chats").append("<tr><td class='msg'>" + message + "</td></tr>");
+function showClientChats(messageObject) {
+    let message = JSON.parse(messageObject)['message'];
+    $("#chats").append("<tr><td class='msg'>" + new Date().toLocaleTimeString() + " - " + message + "</td></tr>");
     scrollChat();
 }
 
 function showClientFileUploads(response) {
     response = JSON.parse(response);
-    $("#chats").append(`<tr><td class='msg'>${response.userId}: FILE: <a target='_blank' href='/files/${response.filename}'>${response.filename}</a></td></tr>`);
+    $("#chats").append(`<tr><td class='msg'>${new Date().toLocaleTimeString()} - ${response.userId}: FILE: <a target='_blank' href='/files/${response.filename}'>${response.filename}</a></td></tr>`);
     scrollChat();
 }
 
@@ -144,6 +142,7 @@ $(function () {
         if(file) {
             let formData = new FormData();
             formData.append("file", file);
+
             fetch('/upload', {
                 method: 'POST',
                 body: formData
